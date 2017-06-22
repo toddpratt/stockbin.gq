@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+
+<html ng-app="StockBin">
+    <head>
+        <title>Stock Bin</title>
+
+        <META HTTP-EQUIV="Pragma" CONTENT="no-cache">
+        <META HTTP-EQUIV="Expires" CONTENT="-1">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+
+        <link href="https://maxcdn.bootstrapcdn.com/bootswatch/3.3.7/spacelab/bootstrap.min.css"
+              integrity="sha384-L/tgI3wSsbb3f/nW9V6Yqlaw3Gj7mpE56LWrhew/c8MIhAYWZ/FNirA64AVkB5pI"
+              rel="stylesheet" crossorigin="anonymous">
+
+        <link href="https://maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css"
+              integrity="sha384-wvfXpqpZZVQGK6TAh5PVlGOfQNHSoD2xbE+QkPxCAFlNEevoEH3Sl0sibVcOQVnN"
+              rel="stylesheet" crossorigin="anonymous">
+
+        <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+        <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/angular.js/1.6.4/angular.min.js"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.18.1/moment.min.js"></script>
+        <script src="app.js"></script>
+
+        <!-- HTML5 shim and Respond.js for IE8 support of HTML5 elements and media queries -->
+        <!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
+        <!--[if lt IE 9]>
+            <script src="https://oss.maxcdn.com/html5shiv/3.7.3/html5shiv.min.js"></script>
+            <script src="https://oss.maxcdn.com/respond/1.4.2/respond.min.js"></script>
+        <![endif]-->
+
+    </head>
+    <body class="container" ng-controller="Controller" ng-init="init()">
+        <div class="container-fluid">
+
+            <div class="page-header panel panel-default">
+                <div class="panel-heading">Symbols</div>
+                <div class="panel-body">
+                    <textarea ng-model="stockText"
+                        class="form-control" rows="3"></textarea>
+                
+                    <div class="text-right">
+                        <button class="btn btn-default"
+                            style="margin-top:25px"
+                            ng-click="getStocks()">Go</button>
+                    </div>
+                </div>
+            </div>
+
+            <div ng-if="apiState === 'not-loaded'" class="panel panel-default text-center jumbotron">
+                <h2>Enter stock symbols above and click go to get quotes.</h2>
+            </div>
+
+            <div ng-if="apiState === 'loading'" class="panel panel-default text-center">
+                <i class="fa fa-refresh fa-spin"></i>
+            </div>
+
+            <div class="panel panel-default" ng-cloak
+                ng-if="apiState === 'loaded' && quotes.length > 0">
+                <div class="panel-heading">Quotes</div>
+                <div class="panel-body">
+                    <table class="table table-striped">
+                        <thead>
+                            <tr>
+                                <th>Symbol</th>
+                                <th>Exchange</th>
+                                <th class="text-right">Latest Price</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr ng-repeat="quote in quotes">
+                                <td>{{quote['01. Symbol']}}</td>
+                                <td>{{quote['02. Exchange Name']}}</td>
+                                <td class="text-right">{{quote['03. Latest Price']}}</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+        </div>
+    </body>
+</html>
