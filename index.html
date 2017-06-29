@@ -21,6 +21,9 @@
         <script src="https://cdnjs.cloudflare.com/ajax/libs/angular.js/1.6.4/angular.min.js"></script>
         <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.18.1/moment.min.js"></script>
         <script src="app.js"></script>
+        <script src="stocksearchapi.js"></script>
+        <script src="alphavantage.js"></script>
+        <script src="tradier.js"></script>
 
         <!-- HTML5 shim and Respond.js for IE8 support of HTML5 elements and media queries -->
         <!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
@@ -34,30 +37,34 @@
         <div class="container-fluid">
 
             <div class="page-header panel panel-default">
-                <div class="panel-heading">Symbols</div>
-                <div class="panel-body">
-                    <textarea ng-model="stockText"
-                        class="form-control" rows="3"></textarea>
-                
-                    <div class="text-right">
-                        <button class="btn btn-default"
-                            style="margin-top:25px"
-                            ng-click="getStocks()">Go</button>
-                    </div>
+                <div class="panel-heading">Symbol Search</div>
+                <div class="panel-body dropdown">
+                    <input class="form-control dropdown-toggle" type="input"
+                           ng-change="searchSymbols()" ng-model="searchText"
+                           data-toggle="dropdown" />
+                    <ul id="matches" class="dropdown-menu" ng-if="matches.length > 0">
+                        <li ng-repeat="match in matches">
+                            <a ng-click="addStock(match.company_symbol)">{{match.company_name}} ({{match.company_symbol}})</a>
+                        </li>
+                    </ul>
                 </div>
+            </div>
+
+            <div ng-if="apiState === 'failed'" class="panel panel-default text-center jumbotron">
+                <h2>An error has occurred.  Please try again later.</h2>
             </div>
 
             <div ng-if="apiState === 'not-loaded'" class="panel panel-default text-center jumbotron">
                 <h2>Enter stock symbols above and click go to get quotes.</h2>
             </div>
 
-            <div ng-if="apiState === 'loading'" class="panel panel-default text-center">
-                <i class="fa fa-refresh fa-spin"></i>
+            <div ng-if="apiState === 'loading'" class="text-center"
+            style="margin-top:25px">
+                <i class="fa fa-spinner fa-spin fa-4x"></i>
             </div>
 
-            <div class="panel panel-default" ng-cloak
-                ng-if="apiState === 'loaded' && quotes.length > 0">
-                <div class="panel-heading">Quotes</div>
+            <div class="panel panel-default" ng-if="stocks.length > 0">
+                <div class="panel-heading">Portfolio</div>
                 <div class="panel-body">
                     <table class="table table-striped">
                         <thead>
@@ -65,13 +72,34 @@
                                 <th>Symbol</th>
                                 <th>Exchange</th>
                                 <th class="text-right">Latest Price</th>
+                                <th class="text-right">Shares</th>
+                                <th class="text-right">Holdings</th>
                             </tr>
                         </thead>
                         <tbody>
-                            <tr ng-repeat="quote in quotes">
-                                <td>{{quote['01. Symbol']}}</td>
-                                <td>{{quote['02. Exchange Name']}}</td>
-                                <td class="text-right">{{quote['03. Latest Price']}}</td>
+                            <tr ng-repeat="(symbole, stock) in stocks">
+                                <td>{{stock.symbol}}</td>
+                                <td>
+                                    <i ng-if="!stock.exchange"
+                                       class="fa fa-spinner fa-spin fa"></i>
+                                    <span ng-if="stock.exchange">{{stock.exchange}}</span>
+                                </td>
+                                <td class="text-right">
+                                    <i ng-if="!stock.price"
+                                       class="fa fa-spinner fa-spin fa"></i>
+                                    <span ng-if="stock.price">{{stock.price}}</span>
+                                </td>
+                                <td class="text-right">
+                                    <input type="text"
+                                           ng-model="stock.holdings"
+                                           style="text-align: right" />
+                                </td>
+                                <td class="text-right">
+                                    <span ng-if="!stock.holdings || !stock.price">-</span>
+                                    <span ng-if="stock.holdings">
+                                        {{stock.price * stock.holdings}}
+                                    </span>
+                                </td>
                             </tr>
                         </tbody>
                     </table>
